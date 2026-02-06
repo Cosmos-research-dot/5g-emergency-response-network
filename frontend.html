@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5G Emergency Response Network - Hospital Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 3px solid #00ff88;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .header h1 {
+            color: #00ff88;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .metric {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #00ff88;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .metric label {
+            color: #888;
+            display: block;
+            font-size: 10px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .metric value {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(30, 30, 50, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            color: #00ff88;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .ambulance-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ambulance-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .ambulance-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .ambulance-id {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .ambulance-name {
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .vital {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 8px;
+            border-radius: 3px;
+        }
+
+        .vital label {
+            color: #888;
+        }
+
+        .vital value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .critical { color: #ff4444 !important; }
+        .urgent { color: #ffaa00 !important; }
+        .stable { color: #00ff88 !important; }
+
+        .triage-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .triage-badge.CRITICAL {
+            background: rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+        }
+
+        .triage-badge.URGENT {
+            background: rgba(255, 170, 0, 0.3);
+            color: #ffaa00;
+        }
+
+        .triage-badge.STABLE {
+            background: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+
+        .dispatch-section {
+            display: grid;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            border: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: monospace;
+            max-height: 150px;
+            overflow-y: auto;
+            color: #00ff88;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚑 5G Emergency Response Network - Hospital Dashboard</h1>
+        <div class="status-bar">
+            <div class="metric">
+                <label>Network Latency</label>
+                <value id="latency">8.2ms</value>
+            </div>
+            <div class="metric">
+                <label>Reliability</label>
+                <value id="reliability">99.999%</value>
+            </div>
+            <div class="metric">
+                <label>Bandwidth</label>
+                <value id="bandwidth">100 Mbps</value>
+            </div>
+            <div class="metric">
+                <label>Active Ambulances</label>
+                <value id="activeCount">0</value>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left: Ambulance List -->
+        <div class="card">
+            <h2>Active Ambulances</h2>
+            <div class="ambulance-list" id="ambulanceList">
+                <p style="color: #888; text-align: center; padding: 20px;">Waiting for dispatches...</p>
+            </div>
+        </div>
+
+        <!-- Center: Dispatch Control -->
+        <div class="card">
+            <h2>Dispatch New Ambulance</h2>
+            <div class="dispatch-section">
+                <div class="input-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patientName" placeholder="e.g., John Doe">
+                </div>
+                <div class="input-group">
+                    <label>Latitude</label>
+                    <input type="number" id="latitude" placeholder="40.7128" value="40.7128" step="0.0001">
+                </div>
+                <div class="input-group">
+                    <label>Longitude</label>
+                    <input type="number" id="longitude" placeholder="-74.0060" value="-74.0060" step="0.0001">
+                </div>
+                <div class="input-group">
+                    <label>Emergency Level</label>
+                    <select id="emergencyLevel">
+                        <option value="false">Standard</option>
+                        <option value="true">Critical</option>
+                    </select>
+                </div>
+                <button onclick="dispatchAmbulance()">📡 Dispatch Ambulance (5G URLLC)</button>
+            </div>
+
+            <h2 style="margin-top: 20px;">System Statistics</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalDispatches">0</div>
+                    <div class="stat-label">Total Dispatches</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="criticalCount">0</div>
+                    <div class="stat-label">Critical Cases</div>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 20px;">Activity Log</h2>
+            <div class="log" id="activityLog">
+                <div class="log-entry">System initialized...</div>
+            </div>
+        </div>
+
+        <!-- Right: Real-time Metrics -->
+        <div class="card">
+            <h2>Real-time Monitoring</h2>
+            <div id="metricsContainer" style="display: grid; gap: 10px;">
+                <div style="color: #888; padding: 20px; text-align: center;">
+                    <p>Connecting to 5G network...</p>
+                    <p style="margin-top: 10px; font-size: 12px;">WebSocket: ws://localhost:3000</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        const WS_URL = 'ws://localhost:3000';
+
+        let ws = null;
+        let ambulancesMap = new Map();
+        let dispatchCount = 0;
+        let criticalCount = 0;
+
+        /**
+         * Connect to WebSocket
+         */
+        function connectWebSocket() {
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log('Connected to 5G network');
+                addLog('✅ Connected to 5G Emergency Network');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleNetworkMessage(data);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                addLog('❌ Connection error - retrying...');
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from network');
+                addLog('⚠️ Disconnected - reconnecting in 3s...');
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        /**
+         * Handle incoming WebSocket messages
+         */
+        function handleNetworkMessage(data) {
+            switch (data.type) {
+                case 'INIT':
+                    data.ambulances.forEach(ambulance => {
+                        ambulancesMap.set(ambulance.id, ambulance);
+                    });
+                    updateUI();
+                    break;
+
+                case 'AMBULANCE_DISPATCHED':
+                    ambulancesMap.set(data.ambulance.id, data.ambulance);
+                    dispatchCount++;
+                    if (data.ambulance.isEmergency) criticalCount++;
+                    addLog(`🚨 Ambulance dispatched: ${data.ambulance.patientName} (${data.ambulance.id.substr(0, 8)}...)`);
+                    updateUI();
+                    break;
+
+                case 'VITALS_UPDATE':
+                    const ambulance = ambulancesMap.get(data.ambulanceId);
+                    if (ambulance) {
+                        ambulance.vitals = data.vitals;
+                        ambulance.location = data.location;
+                    }
+                    updateUI();
+                    break;
+            }
+
+            // Update network latency
+            if (data.latency_ms) {
+                document.getElementById('latency').textContent = data.latency_ms.toFixed(1) + 'ms';
+            }
+        }
+
+        /**
+         * Dispatch new ambulance
+         */
+        async function dispatchAmbulance() {
+            const patientName = document.getElementById('patientName').value || `Patient ${Math.floor(Math.random() * 1000)}`;
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+            const isEmergency = document.getElementById('emergencyLevel').value === 'true';
+
+            try {
+                const response = await fetch(`${API_BASE}/ambulance/dispatch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patientName,
+                        location: { lat: latitude, lng: longitude },
+                        isEmergency
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Dispatch response:', result);
+                addLog(`📍 ${result.message} (${result.networkLatency})`);
+                document.getElementById('patientName').value = '';
+            } catch (error) {
+                console.error('Dispatch error:', error);
+                addLog(`❌ Dispatch failed: ${error.message}`);
+            }
+        }
+
+        /**
+         * Update UI elements
+         */
+        function updateUI() {
+            updateAmbulanceList();
+            updateMetrics();
+        }
+
+        /**
+         * Update ambulance list display
+         */
+        function updateAmbulanceList() {
+            const container = document.getElementById('ambulanceList');
+            document.getElementById('activeCount').textContent = ambulancesMap.size;
+            document.getElementById('totalDispatches').textContent = dispatchCount;
+            document.getElementById('criticalCount').textContent = criticalCount;
+
+            if (ambulancesMap.size === 0) {
+                container.innerHTML = '<p style="color:
+
