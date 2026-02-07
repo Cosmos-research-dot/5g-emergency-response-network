@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: 5g-ern-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: 5g_ern_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - 5g-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   5g-ern:
     build:
       context: .
@@ -9,14 +29,24 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
       HOST: 0.0.0.0
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: 5g_ern_dev
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_SSL: false
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - 5g-network
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+      - ./src:/app/src
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
@@ -27,3 +57,6 @@ services:
 networks:
   5g-network:
     driver: bridge
+
+volumes:
+  postgres_data:
