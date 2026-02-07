@@ -29,15 +29,43 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # Server Configuration
       NODE_ENV: development
       PORT: 3000
       HOST: 0.0.0.0
+      
+      # Database Configuration
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: 5g_ern_dev
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_SSL: false
+      DB_SSL: "false"
+      
+      # Authentication & Security
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-key-in-production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-this-refresh-secret-key-in-production}
+      ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY:-change-this-encryption-key-in-production}
+      
+      # CORS
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+      
+      # Security
+      HTTPS_ENABLED: "false"
+      SECURITY_HEADERS_ENABLED: "true"
+      
+      # Audit Logging
+      AUDIT_LOGGING_ENABLED: "true"
+      HIPAA_MODE: "true"
+      
+      # Features
+      FEATURE_TWO_FACTOR_AUTH: "true"
+      FEATURE_API_KEYS: "true"
+      USE_DEMO_DATA: "true"
     depends_on:
       postgres:
         condition: service_healthy

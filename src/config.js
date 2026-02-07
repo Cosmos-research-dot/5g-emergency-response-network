@@ -10,6 +10,47 @@ module.exports = {
     environment: process.env.NODE_ENV || 'development'
   },
 
+  // Authentication & Security Configuration
+  jwt: {
+    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key-change-in-production',
+    expiresIn: '1h',
+    refreshExpiresIn: '7d'
+  },
+
+  encryption: {
+    masterKey: process.env.ENCRYPTION_MASTER_KEY || 'your-encryption-key-change-in-production',
+    algorithm: 'aes-256-gcm',
+    saltRounds: 10
+  },
+
+  security: {
+    corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(','),
+    https: process.env.HTTPS_ENABLED === 'true',
+    hstsMaxAge: 31536000, // 1 year
+    rateLimiting: {
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      maxRequests: 100
+    },
+    loginAttempts: {
+      maxAttempts: 5,
+      lockoutDuration: 30 * 60 * 1000 // 30 minutes
+    }
+  },
+
+  // Database Configuration
+  database: {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME || 'emergency_network',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000
+  },
+
   network: {
     // 5G URLLC (Ultra-Reliable Low-Latency Communication)
     latency5G: {

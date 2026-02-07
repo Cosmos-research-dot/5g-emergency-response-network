@@ -34,7 +34,11 @@
     "uuid": "^9.0.0",
     "pg": "^8.11.3",
     "pg-pool": "^3.6.1",
-    "pg-migrate": "^0.4.2"
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^7.0.0",
+    "express-validator": "^7.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22",
