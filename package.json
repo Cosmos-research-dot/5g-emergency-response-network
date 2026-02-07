@@ -2,12 +2,17 @@
   "name": "5g-emergency-response-network",
   "version": "0.1.0",
   "description": "Real-time emergency response system powered by 5G URLLC and network slicing",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "client": "cd client && npm start",
-    "test": "jest"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest --testPathPattern=tests/",
+    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:integration": "jest --testPathPattern=tests/integration",
+    "test:e2e": "jest --testPathPattern=tests/e2e",
+    "lint": "eslint src/",
+    "build": "echo 'Build complete'",
+    "docs": "node scripts/generate-docs.js"
   },
   "keywords": [
     "5G",
